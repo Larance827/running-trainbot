@@ -1,0 +1,16 @@
+# Claude
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+
+# TrainBot secrets
+**/trainbot_config.json
+**/task_temp.xml
+**/rebuild_task.ps1
+**/setup.ps1
+
+# OS
+Thumbs.db
+.DS_Store

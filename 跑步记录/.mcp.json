@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "coros": {
+      "url": "https://mcpcn.coros.com/mcp",
+      "headers": {
+        "Authorization": "Bearer eyJraWQiOiI2YTc2MjE1Yy1jYjc2LTQ3Y2QtYTE2ZC00MzE2NmNlNzkwNmQiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJkOGYwNzhiODU1ZjQ0Njk2ODhiZmIyZjgzYTMyZjJkYiIsImF1ZCI6ImNjZDliZDhjLTY1MDQtNGI4My04MGFiLWVkYWQyOWUwNzVjYyIsIm5iZiI6MTc4MDQ5NjA2OCwic2NvcGUiOlsibWNwLnRvb2xzIiwib3BlbmlkIiwib2ZmbGluZV9hY2Nlc3MiXSwiaXNzIjoiaHR0cHM6Ly9tY3Bjbi5jb3Jvcy5jb20iLCJleHAiOjE3ODMwODgwNjgsImlhdCI6MTc4MDQ5NjA2OCwianRpIjoiNTk2MTMyMTUtMzk2Yi00N2ZmLTkzMzgtMmYyYTIyYTcyYTViIn0.Zvj0wAMp5bdXSN0XYz-zH3QAMble3KQ2gZPZytg5vmv8l9J1aOECVkfd7f0Hl8v9FclAggmxK6h2_3blC2WKCRkb6t8h2jLkw-qvd8P3BQbux9vi9C2VVEdeUoe5Lpe7ZyY8fmk0-PI3g0giNEV31RcuaVu5r1ATx4-b1YiZFzFyXxkTJ9oMTmtYRIn5RvqH4OhBFRjN4CT7dyqGwDTNueTpQS2Fvg7dQcfqrtQklDuZVOME7GgOiQne9iT9W9HlwXRxrFY3z_LOWZBYw5jjXcKb4shs-lbn3vdx_dCIIqU7cARkVzZ3-LoWw2Ycwov02XPbJXIiryKyYoF2wc7oLA"
+      }
+    }
+  }
+}
