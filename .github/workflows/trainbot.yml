@@ -3,6 +3,7 @@ name: 🏃 TrainBot Daily Push
 on:
   schedule:
     # 每天北京时间 08:00 = UTC 00:00
+    # NOTE: 新 workflow 首次 push 后需额外一次 commit 激活 schedule
     - cron: '0 0 * * *'
   workflow_dispatch:  # 允许手动触发测试
 
