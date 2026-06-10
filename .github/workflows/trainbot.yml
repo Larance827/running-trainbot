@@ -11,6 +11,8 @@ jobs:
   push:
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # 适配 Node.js 24 (2026/6/16 强制)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
