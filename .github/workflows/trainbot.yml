@@ -3,12 +3,8 @@ name: 🏃 TrainBot Daily Push
 on:
   schedule:
     # 每天北京时间 08:00 = UTC 00:00
-    # NOTE: 新 workflow 首次 push 后需额外一次 commit 激活 schedule
     - cron: '0 0 * * *'
   workflow_dispatch:  # 允许手动触发测试
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Node.js 24 适配 (2026/6/16 强制)
 
 jobs:
   push:
@@ -16,10 +12,10 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5  # Node.js 24 native
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6  # Node.js 24 native
         with:
           python-version: '3.12'
 
