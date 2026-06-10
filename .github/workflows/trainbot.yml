@@ -7,12 +7,13 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:  # 允许手动触发测试
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Node.js 24 适配 (2026/6/16 强制)
+
 jobs:
   push:
     runs-on: ubuntu-latest
     timeout-minutes: 3
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # 适配 Node.js 24 (2026/6/16 强制)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
