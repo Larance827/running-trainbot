@@ -114,19 +114,116 @@ def find_training(trainings: list[Training], target: date) -> Optional[Training]
             return t
     return None
 
+# ─── 周阶段 & 执行要领 ─────────────────────────────────────
+
+def get_week_info(d: date) -> str:
+    """返回训练日所属的周阶段"""
+    if date(2026, 7, 5) <= d <= date(2026, 7, 11):
+        return "第1周 · 重建基础（7/5–7/11）🔴 关键期"
+    elif date(2026, 7, 12) <= d <= date(2026, 7, 18):
+        return "第2周 · 恢复节奏（7/12–7/18）"
+    elif date(2026, 7, 19) <= d <= date(2026, 7, 25):
+        return "第3周 · 质量回归（7/19–7/25）"
+    elif date(2026, 7, 26) <= d <= date(2026, 8, 1):
+        return "第4周 · 巩固提升（7/26–8/1）"
+    return ""
+
+def get_type_tips(t: Training) -> list[str]:
+    """返回特定训练类型的详细执行要领"""
+    tips = []
+    if "间歇" in t.type:
+        tips = [
+            "充分热身 1.2km + 动态拉伸，不要跳过",
+            "每组快跑后 400m 慢跑恢复，不要站着休息",
+            "如果心率超 172 或呼吸失控 → 降配速 5-10 秒",
+            "跑后 0.8km 慢跑放松 + 静态拉伸",
+        ]
+    elif "节奏" in t.type:
+        tips = [
+            "热身 1.2km 慢跑 + 动态拉伸",
+            "节奏段保持稳定巡航感，不要忽快忽慢",
+            "能说短句但不能聊天 = 正确的节奏配速",
+            "如果心率超 172 → 降配速到 5:50-6:00",
+            "放松 0.8km 慢跑 + 静态拉伸",
+        ]
+    elif "长距离" in t.type:
+        tips = [
+            "距离优先于配速——完成距离比速度重要",
+            "每 20 分钟喝一口水，7 月北京高温",
+            "中途累了可降配速到 6:15-6:25，但距离要跑完",
+            "跑前 30 分钟喝 300ml 水",
+        ]
+    elif "恢复跑" in t.type:
+        tips = [
+            "真轻松，能边跑边聊天 = 正确配速",
+            "不要追求速度，这是「恢复」不是「训练」",
+            "如果昨天跑了强度课，今天重点是排酸放松",
+        ]
+    elif "有氧" in t.type:
+        tips = [
+            "首公里必须落在 6:05-6:20，偏慢则下公里提 5-10 秒",
+            "任意 1km > 6:25 → 该公里不算有氧刺激，相当于白跑",
+            "呼吸深但不喘，能说完整句子但不想说太久",
+            "有氧慢跑 ≠ 恢复跑，需要轻微 push",
+        ]
+    elif "半马配速" in t.type:
+        tips = [
+            "找轻松巡航感，不像节奏跑那么吃力",
+            "比有氧跑稍快但仍在舒适区边缘",
+            "注意步频，保持 170-180 spm",
+        ]
+    return tips
+
 # ─── 微信推送 ───────────────────────────────────────────────
 
-def format_wechat_msg(t: Training) -> tuple[str, str]:
-    if t.is_rest:
-        title = f"🧘 {t.date.month}/{t.date.day} 休息日"
-        content = f"## 🧘 {t.date.month}/{t.date.day} 周{t.weekday} — 休息日\n\n🎉 好好恢复！\n\n---\n*来自 TrainBot Cloud*"
-        if t.notes:
-            content = content.replace("*来自 TrainBot Cloud*", f"{t.notes}\n\n*来自 TrainBot Cloud*")
-        return title, content
+def format_wechat_msg(t: Training, trainings: list[Training] = None) -> tuple[str, str]:
+    month, day = t.date.month, t.date.day
+    week_info = get_week_info(t.date)
 
-    title = f"🏃 {t.date.month}/{t.date.day} 周{t.weekday} {t.type}"
-    content_parts = [f"## 🏃 {t.date.month}/{t.date.day} 周{t.weekday}\n"]
-    content_parts.append(f"**{t.type}**\n")
+    if t.is_rest:
+        title = f"🧘 {month}/{day} 周{t.weekday} 休息日"
+
+        content_parts = [f"## 🧘 {month}/{day} 周{t.weekday} — 休息日\n"]
+        if week_info:
+            content_parts.append(f"*{week_info}*\n")
+        content_parts.append("🎉 好好恢复！肌腱适应比心肺慢得多。\n")
+
+        # 明日预告
+        if trainings:
+            tomorrow = t.date + timedelta(days=1)
+            next_t = find_training(trainings, tomorrow)
+            if next_t and not next_t.is_rest:
+                content_parts.append("---")
+                content_parts.append("**📅 明日预告：**")
+                content_parts.append(f"**{next_t.type}**  {next_t.distance}  @{next_t.pace}")
+                if next_t.hr and next_t.hr != "—":
+                    content_parts.append(f"❤️ 心率 {next_t.hr}")
+                if next_t.notes:
+                    note_clean = re.sub(r'[✅⚠️🔧] ', '', next_t.notes).strip()
+                    if note_clean:
+                        content_parts.append(f"💡 {note_clean}")
+
+        # 休息日任务
+        content_parts.append("")
+        content_parts.append("**🌙 休息日任务：**")
+        content_parts.append("- 23:30 前放下手机，0:00 前入睡")
+        content_parts.append("- 目标深睡 > 1h，睡眠评分 > 75")
+        if t.notes:
+            note = re.sub(r'[✅⚠️🔧] ', '', t.notes).strip()
+            if note:
+                content_parts.append(f"- {note}")
+
+        content_parts.append("\n---\n*来自 TrainBot Cloud*")
+        return title, "\n".join(content_parts)
+
+    # ── 训练日 ──
+    title = f"🏃 {month}/{day} 周{t.weekday} {t.type}"
+
+    content_parts = [f"## 🏃 {month}/{day} 周{t.weekday}\n"]
+    if week_info:
+        content_parts.append(f"*{week_info}*\n")
+
+    content_parts.append(f"## {t.type}\n")
 
     if t.distance and t.distance != "—":
         content_parts.append(f"- 📏 **距离**：{t.distance}")
@@ -136,20 +233,28 @@ def format_wechat_msg(t: Training) -> tuple[str, str]:
         content_parts.append(f"- ❤️ **心率**：{t.hr}")
     content_parts.append("")
 
-    if "间歇" in t.type:
-        content_parts.append("> ⚡ **强度课**！充分热身，组间充分恢复")
-    elif "节奏" in t.type:
-        content_parts.append("> 🎯 **节奏课**！保持稳定巡航感")
-    elif "长距离" in t.type:
-        content_parts.append("> 💧 **长距离**！注意补水，每20分钟喝一口")
-    elif "恢复跑" in t.type or "有氧" in t.type:
-        content_parts.append("> 🐢 **慢！** 不要追求速度，压住心率")
-    content_parts.append("")
-
+    # 要点
     if t.notes:
-        note_text = re.sub(r'[✅⚠️🔧] ', '', t.notes).strip()
-        if note_text:
-            content_parts.append(f"💡 {note_text}\n")
+        note_clean = re.sub(r'[✅⚠️🔧] ', '', t.notes).strip()
+        if note_clean:
+            content_parts.append(f"💡 {note_clean}\n")
+
+    # 执行要领
+    tips = get_type_tips(t)
+    if tips:
+        content_parts.append("**🏃 执行要领：**")
+        for tip in tips:
+            content_parts.append(f"- {tip}")
+        content_parts.append("")
+
+    # 通用提醒
+    content_parts.append("**🌙 睡眠硬门槛：**")
+    content_parts.append("- 昨晚 < 5h 或评分 < 60 → 降级为「可选恢复跑 3km」")
+    content_parts.append("- 连续 2 天 < 5h → 强制休息")
+    content_parts.append("- 强度课前检查：睡眠是否达标？\n")
+    content_parts.append("**🕐 训练时间窗：**")
+    content_parts.append("- 有氧/强度课：下午 5:00-7:30 最佳")
+    content_parts.append("- 晚 8:00 后只适合恢复跑\n")
 
     content_parts.append("---\n*来自 TrainBot Cloud*")
     return title, "\n".join(content_parts)
@@ -191,13 +296,13 @@ def main():
         print(f"📭 No training found for {tomorrow}")
         # Still push a reminder for rest days
         title = f"📭 {tomorrow.month}/{tomorrow.day} 无训练安排"
-        content = f"## 📭 {tomorrow.month}/{tomorrow.day}\n\n训练计划中未找到明日安排。\n\n可能已超出计划周期 (6/4 - 7/3)。\n\n---\n*来自 TrainBot Cloud*"
+        content = f"## 📭 {tomorrow.month}/{tomorrow.day}\n\n训练计划中未找到明日安排。\n\n可能已超出计划周期 (7/5 - 8/1)。\n\n---\n*来自 TrainBot Cloud*"
         ok = send_wechat(title, content)
         print("✅ Sent" if ok else "❌ Failed")
         return
 
     print(f"Tomorrow ({tomorrow}): {t.type} {t.distance}")
-    title, content = format_wechat_msg(t)
+    title, content = format_wechat_msg(t, trainings)
     ok = send_wechat(title, content)
     if ok:
         print(f"✅ WeChat push sent: {title}")
