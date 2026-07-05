@@ -22,7 +22,7 @@ from typing import Optional
 
 # ─── 配置 ───────────────────────────────────────────────────
 
-PLAN_FILE = Path("跑步记录/跑步训练计划_2026年6月.md")
+PLAN_FILE = Path("跑步记录/跑步训练计划_2026年7月.md")
 YEAR = 2026
 SERVERCHAN_API = "https://sctapi.ftqq.com/{sendkey}.send"
 
